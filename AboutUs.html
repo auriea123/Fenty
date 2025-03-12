@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Meta tags for character encoding and responsive design -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Page title -->
+    <title>Financial Insights AI Assistant - About Us</title>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;600&family=Istok+Web:wght@400;700&display=swap" 
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Main about page container -->
+    <div class="about-us">
+      <!-- Back button with SVG icon -->
+      <img class="vector" 
+           src="img/Back arrow.svg" 
+           alt="Back icon" 
+           onclick="window.history.back()" 
+           role="button" />
+
+      <!-- Main content container -->
+      <div class="frame">
+        <!-- Page header -->
+        <h1 class="text-wrapper">Welcome to the Financial Insights AI Assistant!</h1>
+
+        <!-- Main content section -->
+        <p class="traditional">
+          Traditional financial data analysis is time-consuming, requiring manual extraction and complex technical
+          queries. Our AI-powered assistant eliminates these inefficiencies by:<br /><br />
+          • Enabling natural language queries, making financial insights accessible to all.<br />
+          • Providing real-time AI-powered insights, reducing decision-making time from hours to minutes.<br />
+          • Seamlessly integrating with enterprise data sources, ensuring a smooth workflow.<br /><br />
+          
+          <strong>Why We Are Unique</strong><br />
+          Unlike traditional solutions, our no-code, AI-driven, and cost-efficient approach empowers
+          businesses to access financial insights instantly—without the need for technical expertise. By leveraging
+          open-source LLMs, ChromaDB, and Informatica's enterprise-grade tools, we ensure accurate, scalable, and
+          cost-effective data analysis.<br /><br />
+          
+          Join us in redefining financial decision-making with the power of AI!
+        </p>
+
+        <!-- Team section header -->
+        <h2 class="text-wrapper">Our Team</h2>
+
+        <!-- Team members grid -->
+        <div class="team-section">
+          <div class="group">
+            <!-- Individual team member cards -->
+            <div class="team-member">
+              <img class="member-image" 
+                   src="Photos/Smith.jpeg" 
+                   alt="Smit's profile" />
+              <h3 class="member-name">Smit</h3>
+              <p class="member-role">Full Stack Developer</p>
+              <p class="member-department">Team Leader</p>
+            </div>
+
+            <div class="team-member">
+              <img class="member-image" 
+                   src="Photos/Ankita.JPG" 
+                   alt="Ankita's profile" />
+              <h3 class="member-name">Ankita</h3>
+              <p class="member-role">UI/UX Designer</p>
+              <p class="member-department">
+                Head of Creative Department<br />
+                (Chief UI/UX Designer)
+              </p>
+            </div>
+
+            <div class="team-member">
+              <img class="member-image" 
+                   src="Photos/Tanmay.jpeg" 
+                   alt="Tanmay's profile" />
+              <h3 class="member-name">Tanmay</h3>
+              <p class="member-role">Full Stack Developer</p>
+              <p class="member-department">
+                Head of Technical Department<br />
+                (Frontend Developer)
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script section -->
+    <script>
+      // Back button functionality
+      document.querySelector('.vector').addEventListener('click', function() {
+        window.history.back();
+      });
+    </script>
+
+    <!-- Universal theme management -->
+    <script>
+      (function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+          body.classList.add('dark-mode');
+          if (themeToggle) themeToggle.classList.add('dark-mode');
+        }
+    
+        // Theme toggle handler
+        if (themeToggle) {
+          themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            themeToggle.classList.toggle('dark-mode');
+            localStorage.setItem('theme', 
+              body.classList.contains('dark-mode') ? 'dark' : 'light'
+            );
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

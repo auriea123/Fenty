@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!-- HTML5 document type declaration -->
+<html>
+  <head>
+    <!-- Character encoding and viewport settings -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- External stylesheet link -->
+    <link rel="stylesheet" href="styles.css" />
+    
+    <!-- Page title -->
+    <title>Welcome!!!</title>
+  </head>
+  
+  <body>
+    <!-- Main container for landing page content -->
+    <div class="landing-page">
+      
+      <!-- Header section containing logo, navigation, and theme toggle -->
+      <header class="header">
+        <!-- Logo container -->
+        <div class="logo">
+          <!-- Company/Site logo image -->
+          <img src="img/Component-logo.svg" alt="Logo" />
+        </div>
+        
+        <!-- Navigation menu -->
+        <nav>
+          <!-- Navigation links -->
+          <a href="AboutUs.html">About</a>
+          <a href="#">Echo AI</a>
+          <a href="#">Explore premium</a>
+        </nav>
+        
+        <!-- Theme toggle switch -->
+        <div class="theme-toggle" id="theme-toggle">
+          <!-- Toggle visual element -->
+          <div class="ellipse"></div>
+        </div>
+      </header>
+
+      <!-- Main content section -->
+      <main class="hero">
+        <!-- Authentication container -->
+        <div class="auth-container">
+          <div class="auth-box">
+            <!-- Sign up and Log in links -->
+            <a href="SignUp.html" class="sign-up">Sign up</a>
+            <a href="Login.html" class="log-in">Log in</a>
+          </div>
+        </div>
+
+        <!-- Product description section -->
+        <div class="description">
+          <!-- Product description paragraphs -->
+          <p>
+            Introducing a revolutionary Retrieval-Augmented Generation (RAG)
+            system
+          </p>
+          <p>
+            designed to transform financial data analysis in enterprises. Our
+            solution
+          </p>
+          <p>
+            leverages Informatica's powerful tools and open-source GenAI to
+            deliver
+          </p>
+          <p>
+            real-time insights, natural language querying, and scalable
+            integration with
+          </p>
+          <p>
+            enterprise data sources.<a href="home.html" class="cta">
+              Try it now <span class="cta-arrow">↗</span></a
+            >
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <!-- Theme toggle functionality script -->
+    <script>
+      // DOM elements selection
+      const body = document.body;
+      const themeToggle = document.getElementById("theme-toggle");
+      
+      // Initial theme load from localStorage
+      if (localStorage.getItem("theme") === "dark") {
+        body.classList.add("dark-mode");
+        themeToggle.classList.add("dark-mode"); // Apply dark mode to toggle
+      }
+
+      // Theme toggle click event handler
+      themeToggle.addEventListener("click", () => {
+        // Toggle dark mode classes
+        body.classList.toggle("dark-mode");
+        themeToggle.classList.toggle("dark-mode"); // Toggle switch position
+
+        // Save user preference to localStorage
+        localStorage.setItem(
+          "theme",
+          body.classList.contains("dark-mode") ? "dark" : "light"
+        );
+      });
+    </script>
+  </body>
+</html>

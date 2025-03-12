@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="globals.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="login-page">
+      <div class="overlap-wrapper">
+        <div class="overlap">
+          <div class="component">
+            <h1 class="text-wrapper">Welcome Back!</h1>
+
+            <div class="social-login">
+              <button class="social-btn">
+                <img src="img/Google_icon.png" alt="google" />
+                Continue with Google
+              </button>
+              <button class="social-btn">
+                <img src="img/Apple_icon.png" alt="apple" />
+                Continue with Apple
+              </button>
+              <button class="social-btn">Continue with Phone Number</button>
+            </div>
+
+            <div class="divider">
+              <span class="line"></span>
+              <span>OR</span>
+              <span class="line"></span>
+            </div>
+
+            <form class="login-form">
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="Email or username" />
+              </div>
+
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" placeholder="Enter password" />
+              </div>
+
+              <button type="submit" class="login-btn">Sign In</button>
+            </form>
+
+            <a href="#" class="forgot-password">Forgot Password?</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Theme Management Script (include on all pages)
+      (function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // Apply saved theme on page load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+          body.classList.add('dark-mode');
+          if (themeToggle) themeToggle.classList.add('dark-mode');
+        }
+    
+        // Toggle handler (only add if toggle exists on page)
+        if (themeToggle) {
+          themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            themeToggle.classList.toggle('dark-mode');
+            localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

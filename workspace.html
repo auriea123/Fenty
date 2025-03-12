@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fenty Analytics Dashboard</title>
+
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="globals.css" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- External JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <!-- Custom CSS Styles -->
+    <style>
+      /* Add custom styles for smaller quadrants */
+      .quadrant {
+        width: 360px;
+        height: 370px;
+        max-width: 380px;
+        max-height: 400px;
+        left: 650px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Adjust canvas sizes within quadrants */
+      #trendChart,
+      #distributionChart {
+        width: 380px !important;
+        height: 300px !important;
+      }
+
+      /* Adjust correlation matrix sizing */
+      .correlation-matrix {
+        max-height: 280px;
+        overflow: auto;
+      }
+
+      .correlation-cell {
+        padding: 8px;
+        font-size: 12px;
+      }
+
+      /* Adjust summary stats sizing */
+      .summary-stats {
+        gap: 4px;
+      }
+
+      .stat-card {
+        padding: 8px;
+        font-size: 12px;
+      }
+
+      .stat-card p {
+        margin: 4px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="worspace">
+      <div class="div">
+        <div class="overlap">
+          <div class="frame">
+            <div class="text-wrapper">Untitled Report</div>
+            <div class="text-wrapper-2">File</div>
+            <div class="text-wrapper-3">Edit</div>
+            <div class="text-wrapper-4">View</div>
+            <div class="text-wrapper-5">Insert</div>
+            <div class="text-wrapper-6">Page</div>
+            <div class="text-wrapper-7">Help</div>
+            <div class="overlap-group">
+              <button class="share-button" onclick="handleShare()">
+                <div class="div-wrapper">
+                  <div class="text-wrapper-8">Share</div>
+                </div>
+              </button>
+              <img class="img" src="img/Share button.svg" />
+              <button aria-label="Profile" class="profile-btn">
+                <img src="img/Profile.svg" alt="Profile" />
+              </button>
+            </div>
+          </div>
+          <div class="text-wrapper-9">Fenty</div>
+        </div>
+        <!-- Added back arrow below Fenty
+            <button class="back-button" onclick="window.history.back()" aria-label="Go back">
+                <img src="img/Back arrow.svg" alt="Back arrow" />
+            </button> -->
+      </div>
+
+      <div class="overlap-2">
+        <div class="overlap-3">
+          <div class="ask-box"></div>
+          <input
+            type="text"
+            class="ask-box"
+            placeholder=" Input your text here "
+            id="chatInput"
+          />
+          <img class="ask" src="img/Submit Button.webp" onclick="handleAsk()" />
+        </div>
+
+        <div class="overlap-4">
+          <div class="rectangle-2"></div>
+          <div class="text-wrapper-11">Input Terminal</div>
+          <div class="text-wrapper-12">Data insights</div>
+          <button class="vector-3" onclick="handleReload()">
+            <img src="img/Reload button.svg" alt="Reload" />
+          </button>
+          <img class="line" src="img/line-2.svg" />
+          <button class="vector-4" onclick="handleDownload()">
+            <img src="img/Download button.svg" alt="Download" />
+          </button>
+        </div>
+
+        <div
+          class="overlap-5"
+          id="dropZone"
+          ondragover="handleDragOver(event)"
+          ondrop="handleDrop(event)"
+        >
+          <p class="p">Drag and drop your file here</p>
+          <div class="text-wrapper-13">or</div>
+          <div class="group">
+            <button
+              class="overlap-6"
+              onclick="document.getElementById('fileInput').click()"
+            >
+              <div class="text-wrapper-14">Browse Files</div>
+            </button>
+          </div>
+          <input
+            type="file"
+            id="fileInput"
+            style="display: none"
+            accept=".csv"
+          />
+        </div>
+
+        <img class="vector-5" src="img/Upload data cloud.svg" />
+        <div class="text-wrapper-15">Upload Data File</div>
+        <img class="menu-vertical" src="img/Menu.png" onclick="toggleMenu()" />
+
+        <div class="dashboard-container" style="display: none">
+          <!-- Initially Hidden -->
+          <!-- Dashboard with Four Quadrants -->
+          <div class="quad-grid" id="quadGrid">
+            <div class="quadrant" id="quadrant1">
+              <div class="chart-controls">
+                <div class="chart-title">Chart 1</div>
+                <div class="chart-actions">
+                  <button class="change-chart">↻</button>
+                  <button class="export-chart">↓</button>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="quadrant1Chart"></canvas>
+              </div>
+            </div>
+            <div class="quadrant" id="quadrant2">
+              <div class="chart-controls">
+                <div class="chart-title">Chart 2</div>
+                <div class="chart-actions">
+                  <button class="change-chart">↻</button>
+                  <button class="export-chart">↓</button>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="quadrant2Chart"></canvas>
+              </div>
+            </div>
+            <div class="quadrant" id="quadrant3">
+              <div class="chart-controls">
+                <div class="chart-title">Chart 3</div>
+                <div class="chart-actions">
+                  <button class="change-chart">↻</button>
+                  <button class="export-chart">↓</button>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="quadrant3Chart"></canvas>
+              </div>
+            </div>
+            <div class="quadrant" id="quadrant4">
+              <div class="chart-controls">
+                <div class="chart-title">Chart 4</div>
+                <div class="chart-actions">
+                  <button class="change-chart">↻</button>
+                  <button class="export-chart">↓</button>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="quadrant4Chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript Code -->
+    <script>
+      // DOM Elements
+      const uploadArea = document.getElementById("dropZone");
+      const fileInput = document.getElementById("fileInput");
+      const sendBtn = document.querySelector(".ask"); // Select by class instead of ID
+      const chatInput = document.getElementById("chatInput");
+      const chatHistory = document.getElementById("chatHistory");
+      const placeholder = document.getElementById("dropZone");
+      const dashboardContainer = document.querySelector(".dashboard-container"); // Corrected selector
+      const quadrantsDiv = document.getElementById("quadGrid");
+
+      // Chart Instances
+      let charts = {};
+      let parsedData = [];
+      let columns = [];
+      let dataType = null;
+      let columnTypes = {};
+
+      // File Upload Handling
+      uploadArea.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", (e) => {
+        console.log("fileInput.onchange: Event triggered!");
+        const file = e.target.files[0];
+        if (file) {
+          processFile(file);
+        }
+      });
+
+      function processFile(file) {
+        console.log(
+          "processFile: Function processFile START for file:",
+          file.name
+        );
+        console.log("processFile: File Name:", file.name); // Log file name
+
+        // **ADD THIS FILE TYPE DETECTION LOGIC HERE:**
+        if (file.name.endsWith(".csv")) {
+          dataType = "csv";
+          console.log("processFile: Detected file type: CSV"); // Log detected type
+        } else if (file.name.endsWith(".json")) {
+          dataType = "json";
+          console.log("processFile: Detected file type: JSON"); // Log detected type
+        } else if (file.name.endsWith(".xml")) {
+          dataType = "xml";
+          console.log("processFile: Detected file type: XML"); // Log detected type
+        } else {
+          dataType = null; // Or undefined, or some default value if you prefer
+          console.log("processFile: Detected file type: UNKNOWN"); // Log detected type
+        }
+        console.log(
+          "processFile: Value of dataType AFTER detection:",
+          dataType
+        ); // Log dataType value
+
+        if (!dataType) {
+          // Check if dataType is still null or undefined after detection
+          showError("Unsupported file format");
+          console.error("processFile: Unsupported file format detected.");
+          return; // Exit the function if unsupported
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            console.log("reader.onload: File loaded into reader");
+            let data;
+            console.log("reader.onload: About to parse file type:", dataType);
+            console.log(
+              "reader.onload: Value of dataType BEFORE check:",
+              dataType
+            );
+            if (dataType === "csv") {
+              console.log("reader.onload: Parsing as CSV");
+              data = parseCSV(e.target.result);
+              console.log("reader.onload: CSV parsing completed");
+            } else if (dataType === "json") {
+              data = parseJSON(e.target.result);
+            } else if (dataType === "xml") {
+              data = parseXML(e.target.result);
+            } // No 'else' here now, as we already handled unsupported formats above
+
+            parsedData = data;
+            console.log("reader.onload: parsedData assigned:", parsedData);
+            if (parsedData && parsedData.length > 0) {
+              columns = Object.keys(parsedData[0]);
+              detectColumnTypes();
+              console.log("reader.onload: Columns:", columns);
+              console.log("reader.onload: Column Types:", columnTypes);
+
+              // UI Updates
+              console.log(
+                "reader.onload: About to hide dropZone and show dashboard"
+              );
+              //document.getElementById("dropZone").style.display = "none";
+              dashboardContainer.style.display = "block";
+              console.log("reader.onload: dropZone hidden, dashboard shown");
+
+              console.log("reader.onload: About to initialize charts");
+              initializeCharts();
+              console.log("reader.onload: initializeCharts completed");
+
+              console.log("reader.onload: About to arrange charts");
+              arrangeCharts();
+              console.log("reader.onload: arrangeCharts completed");
+            } else {
+              throw new Error("No data parsed from file or empty file.");
+            }
+          } catch (error) {
+            console.error("Error in reader.onload:", error);
+            showError("Failed to process file: " + error.message);
+          }
+        };
+        reader.onerror = (error) => {
+          console.error("FileReader Error:", error);
+          showError("Failed to read file.");
+        };
+        reader.readAsText(file);
+        console.log(
+          "processFile: Function processFile END - FileReader started"
+        );
+      }
+
+      function parseCSV(csvText) {
+        console.log("parseCSV: START - Parsing CSV text");
+        const result = Papa.parse(csvText, {
+          header: true,
+          dynamicTyping: true,
+          delimiter: ",", // Explicitly set delimiter to comma
+          skipEmptyLines: true, // Skip empty lines
+          complete: function (results) {
+            // Add complete callback
+            console.log("PapaParse complete callback called:", results); // Log the entire results object
+            if (results.errors && results.errors.length > 0) {
+              console.error(
+                "PapaParse: Detailed CSV Parsing Errors:",
+                results.errors
+              ); // Detailed errors
+              // We are already throwing error in the main parseCSV function based on result.errors,
+              // but this callback gives us more context in the console.
+            }
+            console.log("PapaParse: Data from callback:", results.data); // Data in callback
+          },
+        });
+        if (result.errors && result.errors.length > 0) {
+          console.error("CSV Parsing Errors:", result.errors);
+          throw new Error("CSV parsing error: " + result.errors[0].message);
+        }
+        console.log("parseCSV: END - Parsing CSV completed");
+        console.log("parseCSV: Returning data:", result.data);
+        return result.data;
+      }
+
+      function parseJSON(jsonText) {
+        console.log(
+          "parseJSON: Parsing JSON text (Placeholder - Implement JSON parsing if needed)"
+        );
+        try {
+          const data = JSON.parse(jsonText);
+          console.log("parseJSON: JSON Parsed successfully", data);
+          return data;
+        } catch (e) {
+          console.error("JSON Parsing Error:", e);
+          throw new Error("JSON parsing error: " + e.message);
+        }
+      }
+
+      function parseXML(xmlText) {
+        console.log(
+          "parseXML: Parsing XML text (Placeholder - Implement XML parsing if needed)"
+        );
+        // Implement XML parsing logic if needed, or remove XML support
+        return []; // Placeholder - return empty array for now
+      }
+
+      function detectColumnTypes() {
+        console.log("detectColumnTypes: START - Detecting column types"); // ADD THIS LINE
+        if (
+          !parsedData ||
+          parsedData.length === 0 ||
+          !columns ||
+          columns.length === 0
+        ) {
+          console.warn(
+            "detectColumnTypes: No data or columns to detect types from."
+          );
+          return; // Exit if no data or columns
+        }
+        columns.forEach((column) => {
+          const firstValue = parsedData[0][column];
+          console.log(
+            `detectColumnTypes: Checking column: ${column}, first value:`,
+            firstValue
+          ); // ADD THIS LINE
+          if (typeof firstValue === "number") {
+            columnTypes[column] = "numeric";
+          } else if (!isNaN(Date.parse(firstValue))) {
+            columnTypes[column] = "date";
+          } else {
+            columnTypes[column] = "categorical";
+          }
+        });
+        console.log("detectColumnTypes: Column types detected:", columnTypes);
+        console.log("detectColumnTypes: END - Column type detection completed"); // ADD THIS LINE
+      }
+
+      function initializeCharts() {
+        console.log("initializeCharts: START - Initializing chart containers"); // Keep this line
+        console.log("initializeCharts: Clearing quadrantsDiv.innerHTML"); // ADD THIS LINE
+        quadrantsDiv.innerHTML = Array.from(
+          { length: 4 }, // Reduced to 4 quadrants for simplicity in debugging
+          (_, i) => `
+              <div class="quadrant" id="quadrant${i + 1}">
+                <div class="chart-controls">
+                  <div class="chart-title">Chart ${i + 1}</div>
+                  <div class="chart-actions">
+                    <button class="change-chart">↻</button>
+                    <button class="export-chart">↓</button>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="quadrant${i + 1}Chart"></canvas>
+                </div>
+              </div>
+            `
+        ).join("");
+        console.log("initializeCharts: Quadrant HTML set"); // ADD THIS LINE
+
+        // Initialize chart instances
+        charts = {};
+
+        // Add event listeners to new buttons
+        document.querySelectorAll(".change-chart").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const chartId = btn.closest(".quadrant").querySelector("canvas").id;
+            changeChartType(chartId);
+          });
+        });
+
+        document.querySelectorAll(".export-chart").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const chartId = btn.closest(".quadrant").querySelector("canvas").id;
+            exportChart(chartId);
+          });
+        });
+        console.log("initializeCharts: END - Chart containers initialized"); // Keep this line
+      }
+
+      function arrangeCharts() {
+        console.log("arrangeCharts: START - Arranging charts"); // Keep this line
+        console.log("arrangeCharts: Getting quadrant canvases"); // ADD THIS LINE
+        const quadrants = Array.from(
+          { length: 4 },
+          (
+            _,
+            i // Reduced to 4 quadrants
+          ) => document.getElementById(`quadrant${i + 1}Chart`)
+        );
+        console.log("arrangeCharts: Quadrant Canvases:", quadrants); // ADD THIS LINE
+        console.log(
+          "arrangeCharts: Looping through quadrants to create charts"
+        ); // ADD THIS LINE
+
+        // Clear existing charts
+        quadrants.forEach((canvas) => {
+          if (charts[canvas.id]) {
+            charts[canvas.id].destroy();
+            delete charts[canvas.id];
+          }
+        });
+
+        // Create new charts
+        quadrants.forEach((canvas, index) => {
+          console.log(
+            `arrangeCharts: Processing canvas: ${canvas.id}, index: ${index}`
+          ); // Keep this line
+          if (index % 4 === 0) createDistributionChart(canvas, index);
+          else if (index % 4 === 1) createComparisonChart(canvas, index);
+          else if (index % 4 === 2) createTimeSeriesChart(canvas, index);
+          else createRelationshipChart(canvas, index);
+        });
+        console.log("arrangeCharts: END - Charts arranged (loop completed)"); // ADD THIS LINE
+        console.log("arrangeCharts: Current charts object:", charts); // ADD THIS LINE
+      }
+
+      function createDistributionChart(canvas, index) {
+        console.log(
+          `createDistributionChart: START - Canvas ID: ${canvas.id}, Index: ${index}`
+        ); // Keep this line
+        const categoricalColumns = columns.filter(
+          (col) => columnTypes[col] === "categorical"
+        );
+
+        if (!categoricalColumns.length) {
+          console.log(
+            "createDistributionChart: No categorical columns, creating default chart"
+          ); // ADD THIS LINE
+          return createDefaultChart(canvas, index); // Pass index for title
+        }
+        const column = categoricalColumns[index % categoricalColumns.length]; // Get actual column
+        console.log(
+          `createDistributionChart: Selected categorical column: ${column}`
+        ); // ADD THIS LINE
+
+        const data = parsedData.reduce((acc, row) => {
+          const value = row[column] || "Unknown";
+          acc[value] = (acc[value] || 0) + 1;
+          return acc;
+        }, {});
+        console.log("createDistributionChart: Chart Data:", data); // ADD THIS LINE
+
+        const chart = new Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: Object.keys(data),
+            datasets: [
+              {
+                label: `${column} Distribution`,
+                data: Object.values(data),
+                backgroundColor: "rgba(75, 192, 192, 0.5)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { beginAtZero: true },
+            },
+          },
+        });
+
+        charts[canvas.id] = chart;
+        const quadrantDiv = document.getElementById(`quadrant${index + 1}`); // Get quadrant div
+        if (quadrantDiv) {
+          quadrantDiv.querySelector(
+            ".chart-title"
+          ).textContent = `${column} Distribution`; // Set title correctly
+        }
+        console.log(
+          `createDistributionChart: END - Chart created for ${canvas.id}`
+        ); // ADD THIS LINE
+      }
+
+      function createComparisonChart(canvas, index) {
+        console.log(
+          `createComparisonChart: START - Canvas ID: ${canvas.id}, Index: ${index}`
+        ); // Keep this line
+        const numericColumns = columns.filter(
+          (col) => columnTypes[col] === "numeric"
+        );
+        if (numericColumns.length < 2) {
+          console.log(
+            "createComparisonChart: Less than 2 numeric columns, creating default chart"
+          ); // ADD THIS LINE
+          return createDefaultChart(canvas, index); // Pass index for title
+        }
+
+        const xColumn = numericColumns[index % numericColumns.length];
+        const yColumn = numericColumns[(index + 1) % numericColumns.length];
+        console.log(
+          `createComparisonChart: Selected numeric columns: X=${xColumn}, Y=${yColumn}`
+        ); // ADD THIS LINE
+
+        const data = {
+          datasets: [
+            {
+              label: `${xColumn} vs ${yColumn}`,
+              data: parsedData.map((row) => ({
+                x: row[xColumn],
+                y: row[yColumn],
+              })),
+              backgroundColor: "rgba(75, 192, 192, 0.5)",
+            },
+          ],
+        };
+        console.log("createComparisonChart: Chart Data:", data); // ADD THIS LINE
+
+        const chart = new Chart(canvas, {
+          type: "scatter",
+          data: data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: xColumn,
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: yColumn,
+                },
+              },
+            },
+          },
+        });
+
+        charts[canvas.id] = chart;
+        const quadrantDiv = document.getElementById(`quadrant${index + 1}`); // Get quadrant div
+        if (quadrantDiv) {
+          quadrantDiv.querySelector(
+            ".chart-title"
+          ).textContent = `${xColumn} vs ${yColumn}`; // Set title correctly
+        }
+        console.log(
+          `createComparisonChart: END - Chart created for ${canvas.id}`
+        ); // ADD THIS LINE
+      }
+
+      function createTimeSeriesChart(canvas, index) {
+        console.log(
+          `createTimeSeriesChart: START - Canvas ID: ${canvas.id}, Index: ${index}`
+        ); // Keep this line
+        const dateColumns = columns.filter(
+          (col) => columnTypes[col] === "date"
+        );
+        const numericColumns = columns.filter(
+          (col) => columnTypes[col] === "numeric"
+        );
+
+        if (dateColumns.length === 0 || numericColumns.length === 0) {
+          console.log(
+            "createTimeSeriesChart: No date or numeric columns, creating default chart"
+          ); // ADD THIS LINE
+          return createDefaultChart(canvas, index); // Pass index for title
+        }
+
+        const dateColumn = dateColumns[0];
+        const numericColumn = numericColumns[index % numericColumns.length];
+        console.log(
+          `createTimeSeriesChart: Selected columns: Date=${dateColumn}, Numeric=${numericColumn}`
+        ); // ADD THIS LINE
+
+        const data = parsedData.reduce((acc, row) => {
+          const date = new Date(row[dateColumn]);
+          if (!isNaN(date)) {
+            const month = date.toISOString().slice(0, 7);
+            acc[month] = (acc[month] || 0) + (row[numericColumn] || 0);
+          }
+          return acc;
+        }, {});
+        console.log("createTimeSeriesChart: Chart Data:", data); // ADD THIS LINE
+
+        const chart = new Chart(canvas, {
+          type: "line",
+          data: {
+            labels: Object.keys(data).sort(),
+            datasets: [
+              {
+                label: numericColumn,
+                data: Object.values(data),
+                borderColor: "rgba(75, 192, 192, 1)",
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: dateColumn,
+                },
+              },
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: numericColumn,
+                },
+              },
+            },
+          },
+        });
+
+        charts[canvas.id] = chart;
+        const quadrantDiv = document.getElementById(`quadrant${index + 1}`); // Get quadrant div
+        if (quadrantDiv) {
+          quadrantDiv.querySelector(
+            ".chart-title"
+          ).textContent = `${numericColumn} Over Time`; // Set title correctly
+        }
+        console.log(
+          `createTimeSeriesChart: END - Chart created for ${canvas.id}`
+        ); // ADD THIS LINE
+      }
+
+      function createRelationshipChart(canvas, index) {
+        console.log(
+          `createRelationshipChart: START - Canvas ID: ${canvas.id}, Index: ${index}`
+        ); // Keep this line
+        const numericColumns = columns.filter(
+          (col) => columnTypes[col] === "numeric"
+        );
+        const categoricalColumns = columns.filter(
+          (col) => columnTypes[col] === "categorical"
+        );
+
+        if (numericColumns.length === 0 || categoricalColumns.length === 0) {
+          console.log(
+            "createRelationshipChart: No numeric or categorical columns, creating default chart"
+          ); // ADD THIS LINE
+          return createDefaultChart(canvas, index); // Pass index for title
+        }
+
+        const numericColumn = numericColumns[index % numericColumns.length];
+        const categoricalColumn =
+          categoricalColumns[index % categoricalColumns.length];
+        console.log(
+          `createRelationshipChart: Selected columns: Numeric=${numericColumn}, Categorical=${categoricalColumn}`
+        ); // ADD THIS LINE
+
+        const data = {};
+        parsedData.forEach((row) => {
+          const category = row[categoricalColumn] || "Unknown";
+          data[category] = (data[category] || 0) + (row[numericColumn] || 0);
+        });
+        console.log("createRelationshipChart: Chart Data:", data); // ADD THIS LINE
+
+        const chart = new Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: Object.keys(data),
+            datasets: [
+              {
+                label: numericColumn,
+                data: Object.values(data),
+                backgroundColor: "rgba(75, 192, 192, 0.5)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { beginAtZero: true },
+              x: {
+                title: {
+                  display: true,
+                  text: categoricalColumn,
+                },
+              },
+            },
+          },
+        });
+
+        charts[canvas.id] = chart;
+        const quadrantDiv = document.getElementById(`quadrant${index + 1}`); // Get quadrant div
+        if (quadrantDiv) {
+          quadrantDiv.querySelector(
+            ".chart-title"
+          ).textContent = `${numericColumn} by ${categoricalColumn}`; // Set title correctly
+        }
+        console.log(
+          `createRelationshipChart: END - Chart created for ${canvas.id}`
+        ); // ADD THIS LINE
+      }
+
+      function createDefaultChart(canvas, index) {
+        // Added index parameter
+        console.log(
+          `createDefaultChart: START - Canvas ID: ${canvas.id}, Index: ${index}`
+        ); // Keep this line
+        if (!columns.length) {
+          console.log(
+            "createDefaultChart: No columns available to create default chart."
+          ); // ADD THIS LINE
+          return; // Exit if no columns available
+        }
+        const column = columns[Math.floor(Math.random() * columns.length)];
+        const data = parsedData.map((row) => row[column]);
+        console.log(
+          `createDefaultChart: Selected column: ${column}, Sample Data:`,
+          data.slice(0, 10)
+        ); // ADD THIS LINE
+
+        const chart = new Chart(canvas, {
+          type: "bar",
+          data: {
+            labels: Array.from({ length: 10 }, (_, i) => `Item ${i + 1}`),
+            datasets: [
+              {
+                label: column,
+                data: data.slice(0, 10),
+                backgroundColor: "rgba(75, 192, 192, 0.5)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { beginAtZero: true },
+            },
+          },
+        });
+
+        charts[canvas.id] = chart;
+        const quadrantDiv = document.getElementById(`quadrant${index + 1}`); // Get quadrant div
+        if (quadrantDiv) {
+          quadrantDiv.querySelector(
+            ".chart-title"
+          ).textContent = `Sample Data: ${column}`; // Set title correctly
+        }
+        console.log(`createDefaultChart: END - Chart created for ${canvas.id}`); // ADD THIS LINE
+      }
+
+      function showError(message) {
+        alert(message); // For simplicity, using alert. Replace with better error display
+      }
+    </script>
+
+    <script>
+      // File Handling
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.target.classList.add("dragover");
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        e.target.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+      }
+
+      function handleAsk() {
+        const query = document.getElementById("chatInput").value;
+        // ... process query ...
+      }
+
+      // Add basic button handlers
+      function handleShare() {
+        /* Implement share functionality */
+      }
+
+      function handleReload() {
+        location.reload();
+      }
+
+      function handleDownload() {
+        /* Implement download functionality */
+      }
+    </script>
+
+    <!-- Theme Management Script -->
+    <script>
+      // Theme Management Script (include on all pages)
+      (function () {
+        const themeToggle = document.getElementById("theme-toggle");
+        const body = document.body;
+
+        // Apply saved theme on page load
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+          body.classList.add("dark-mode");
+          if (themeToggle) themeToggle.classList.add("dark-mode");
+        }
+
+        // Toggle handler (only add if toggle exists on page)
+        if (themeToggle) {
+          themeToggle.addEventListener("click", () => {
+            body.classList.toggle("dark-mode");
+            themeToggle.classList.toggle("dark-mode");
+            localStorage.setItem(
+              "theme",
+              body.classList.contains("dark-mode") ? "dark" : "light"
+            );
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
